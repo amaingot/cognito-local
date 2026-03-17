@@ -1,0 +1,21 @@
+{
+  "region": "us-east-1",
+  "userPoolId": "us-east-1_localDev01",
+  "userPoolName": "cognito-local",
+  "port": 9229,
+  "clients": [
+    {
+      "clientId": "my-app-local",
+      "clientSecret": "local-secret",
+      "clientName": "My App",
+      "callbackUrls": ["http://localhost:3000/callback"],
+      "logoutUrls": ["http://localhost:3000"],
+      "explicitAuthFlows": [
+        "ALLOW_USER_PASSWORD_AUTH",
+        "ALLOW_REFRESH_TOKEN_AUTH"
+      ],
+      "allowedOAuthFlows": ["code"],
+      "allowedOAuthScopes": ["openid", "email", "profile"]
+    }
+  ]
+}

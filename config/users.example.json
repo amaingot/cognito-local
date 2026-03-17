@@ -1,0 +1,28 @@
+[
+  {
+    "username": "user-001",
+    "email": "alice@example.com",
+    "password": "Password1!",
+    "status": "CONFIRMED",
+    "attributes": {
+      "email_verified": "true",
+      "given_name": "Alice",
+      "family_name": "Smith",
+      "nickname": "alice"
+    },
+    "groups": ["Admin", "Everyone"]
+  },
+  {
+    "username": "user-002",
+    "email": "bob@example.com",
+    "password": "Password1!",
+    "status": "CONFIRMED",
+    "attributes": {
+      "email_verified": "true",
+      "given_name": "Bob",
+      "family_name": "Jones",
+      "nickname": "bob"
+    },
+    "groups": ["Everyone"]
+  }
+]
