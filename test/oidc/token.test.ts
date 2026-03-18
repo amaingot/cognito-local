@@ -6,7 +6,6 @@ import {
   createTestApp,
   TEST_CLIENT_ID,
   TEST_CLIENT_SECRET,
-  TEST_POOL_ID,
 } from "../setup";
 
 describe("OIDC Token Endpoint", () => {

@@ -1,7 +1,6 @@
 import request from "supertest";
 import { describe, it, expect, beforeEach } from "vitest";
 import type express from "express";
-import { AppContext } from "../../src/index";
 import { createTestApp, TEST_POOL_ID } from "../setup";
 
 const SDK_CONTENT_TYPE = "application/x-amz-json-1.1";
@@ -21,10 +20,8 @@ function sdkRequest(
 
 describe("SDK Admin User Operations", () => {
   let app: express.Express;
-  let ctx: AppContext;
-
   beforeEach(() => {
-    ({ app, ctx } = createTestApp());
+    ({ app } = createTestApp());
   });
 
   describe("AdminGetUser", () => {

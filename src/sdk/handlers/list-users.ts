@@ -17,7 +17,7 @@ export function listUsersHandler(ctx: AppContext) {
       return;
     }
 
-    let users = ctx.userPoolStore.listUsers(UserPoolId, Filter);
+    const users = ctx.userPoolStore.listUsers(UserPoolId, Filter);
 
     // Simple pagination
     let startIndex = 0;
