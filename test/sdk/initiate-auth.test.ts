@@ -1,8 +1,7 @@
 import request from "supertest";
 import { describe, it, expect, beforeEach } from "vitest";
 import type express from "express";
-import { AppContext } from "../../src/index";
-import { createTestApp, TEST_CLIENT_ID, TEST_POOL_ID } from "../setup";
+import { createTestApp, TEST_CLIENT_ID } from "../setup";
 
 const SDK_CONTENT_TYPE = "application/x-amz-json-1.1";
 const TARGET_PREFIX = "AWSCognitoIdentityProviderService.";
@@ -21,10 +20,9 @@ function sdkRequest(
 
 describe("SDK InitiateAuth", () => {
   let app: express.Express;
-  let ctx: AppContext;
 
   beforeEach(() => {
-    ({ app, ctx } = createTestApp());
+    ({ app } = createTestApp());
   });
 
   describe("USER_PASSWORD_AUTH", () => {
