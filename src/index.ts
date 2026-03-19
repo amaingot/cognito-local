@@ -39,7 +39,7 @@ function main(): void {
 
   const userPoolStore = new UserPoolStore(config.dataDir);
   const clientStore = new ClientStore(config.dataDir);
-  const tokenStore = new TokenStore();
+  const tokenStore = new TokenStore(config.dataDir);
 
   // Initialize from config
   userPoolStore.initFromConfig(config, users);

@@ -1,16 +1,20 @@
 import crypto from "crypto";
+import { DataStore } from "./store";
 import { AuthCode, RefreshTokenEntry } from "../types";
 
 export class TokenStore {
-  private authCodes = new Map<string, AuthCode>();
-  private refreshTokens = new Map<string, RefreshTokenEntry>();
+  private authCodes: DataStore<AuthCode>;
+  private refreshTokens: DataStore<RefreshTokenEntry>;
   private cleanupTimer: ReturnType<typeof setInterval>;
 
-  constructor() {
+  constructor(dataDir: string) {
+    this.authCodes = new DataStore<AuthCode>(dataDir, "auth-codes.json");
+    this.refreshTokens = new DataStore<RefreshTokenEntry>(dataDir, "refresh-tokens.json");
+
     // Clean up expired auth codes every 60s
     this.cleanupTimer = setInterval(() => {
       const now = Date.now();
-      for (const [code, data] of this.authCodes) {
+      for (const [code, data] of this.authCodes.entries()) {
         if (now - data.createdAt > 120_000) this.authCodes.delete(code);
       }
     }, 60_000);
@@ -86,7 +90,7 @@ export class TokenStore {
   }
 
   revokeUserTokens(userId: string): void {
-    for (const [token, entry] of this.refreshTokens) {
+    for (const [token, entry] of this.refreshTokens.entries()) {
       if (entry.userId === userId) {
         this.refreshTokens.delete(token);
       }
