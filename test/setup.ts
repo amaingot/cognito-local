@@ -59,7 +59,22 @@ export function createTestApp(): { app: express.Express; ctx: AppContext } {
   const tokenStore = new TokenStore(dataDir);
   testTokenStores.push(tokenStore);
 
-  // Initialize pool and clients from config
+  // Create test pool explicitly (initFromConfig no longer auto-creates pools)
+  userPoolStore.createPool({
+    id: TEST_POOL_ID,
+    name: "test-pool",
+    region: "us-east-1",
+    usernameAttributes: ["email"],
+    schema: [
+      { name: "email", attributeDataType: "String", required: true, mutable: true },
+      { name: "given_name", attributeDataType: "String", required: false, mutable: true },
+      { name: "family_name", attributeDataType: "String", required: false, mutable: true },
+      { name: "nickname", attributeDataType: "String", required: false, mutable: true },
+      { name: "phone_number", attributeDataType: "String", required: false, mutable: true },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
   userPoolStore.initFromConfig(config, []);
   clientStore.initFromConfig(config);
 

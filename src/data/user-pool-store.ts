@@ -12,22 +12,9 @@ export class UserPoolStore {
   }
 
   initFromConfig(config: AppConfig, seedUsers: UserConfig[]): void {
+    // Only seed users into pools that already exist
     if (!this.pools.has(config.userPoolId)) {
-      this.pools.set(config.userPoolId, {
-        id: config.userPoolId,
-        name: config.userPoolName,
-        region: config.region,
-        usernameAttributes: ["email"],
-        schema: [
-          { name: "email", attributeDataType: "String", required: true, mutable: true },
-          { name: "given_name", attributeDataType: "String", required: false, mutable: true },
-          { name: "family_name", attributeDataType: "String", required: false, mutable: true },
-          { name: "nickname", attributeDataType: "String", required: false, mutable: true },
-          { name: "phone_number", attributeDataType: "String", required: false, mutable: true },
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      return;
     }
 
     for (const u of seedUsers) {

@@ -26,7 +26,11 @@ export function confirmSignUpHandler(ctx: AppContext) {
     }
 
     const poolId = client.userPoolId;
-    const user = ctx.userPoolStore.getUser(poolId, Username);
+    const pool = ctx.userPoolStore.getPool(poolId);
+    let user = ctx.userPoolStore.getUser(poolId, Username);
+    if (!user && pool?.usernameAttributes?.includes("email")) {
+      user = ctx.userPoolStore.getUserByEmail(poolId, Username);
+    }
     if (!user) {
       userNotFoundError(res);
       return;

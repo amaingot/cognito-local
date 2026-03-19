@@ -28,7 +28,7 @@ describe("SDK SignUp and ConfirmSignUp", () => {
   });
 
   describe("SignUp", () => {
-    it("creates an unconfirmed user", async () => {
+    it("creates an unconfirmed user with email as username", async () => {
       const res = await sdkRequest(app, "SignUp", {
         ClientId: TEST_CLIENT_ID,
         Username: "newuser",
@@ -40,7 +40,7 @@ describe("SDK SignUp and ConfirmSignUp", () => {
       }).expect(200);
 
       expect(res.body.UserConfirmed).toBe(false);
-      expect(res.body.UserSub).toBeDefined();
+      expect(res.body.UserSub).toBe("newuser@example.com");
 
       // Verify the user was created as UNCONFIRMED in the store
       const user = ctx.userPoolStore.getUserByEmail(
@@ -48,6 +48,7 @@ describe("SDK SignUp and ConfirmSignUp", () => {
         "newuser@example.com"
       );
       expect(user).toBeDefined();
+      expect(user!.username).toBe("newuser@example.com");
       expect(user!.status).toBe("UNCONFIRMED");
       expect(user!.attributes.email_verified).toBe("false");
       expect(user!.attributes.given_name).toBe("New");
@@ -132,23 +133,24 @@ describe("SDK SignUp and ConfirmSignUp", () => {
         UserAttributes: [{ Name: "email", Value: "flow@example.com" }],
       }).expect(200);
 
-      const userSub = signUpRes.body.UserSub;
+      // With usernameAttributes: ["email"], UserSub is the email
+      expect(signUpRes.body.UserSub).toBe("flow@example.com");
 
       // Get the confirmation code from the store
-      const user = ctx.userPoolStore.getUser(TEST_POOL_ID, userSub);
+      const user = ctx.userPoolStore.getUser(TEST_POOL_ID, "flow@example.com");
       expect(user).toBeDefined();
       expect(user!.confirmationCode).toBeDefined();
       const code = user!.confirmationCode!;
 
-      // Confirm sign up
+      // Confirm sign up using email as Username
       await sdkRequest(app, "ConfirmSignUp", {
         ClientId: TEST_CLIENT_ID,
-        Username: userSub,
+        Username: "flow@example.com",
         ConfirmationCode: code,
       }).expect(200);
 
       // Verify confirmed
-      const confirmedUser = ctx.userPoolStore.getUser(TEST_POOL_ID, userSub);
+      const confirmedUser = ctx.userPoolStore.getUser(TEST_POOL_ID, "flow@example.com");
       expect(confirmedUser!.status).toBe("CONFIRMED");
     });
   });
