@@ -158,9 +158,9 @@ You should receive a JSON response containing the issuer, authorization endpoint
 ```json
 {
   "issuer": "http://localhost:9229/us-east-1_localDev01",
-  "authorization_endpoint": "http://localhost:9229/us-east-1_localDev01/oauth2/authorize",
-  "token_endpoint": "http://localhost:9229/us-east-1_localDev01/oauth2/token",
-  "userinfo_endpoint": "http://localhost:9229/us-east-1_localDev01/oauth2/userInfo",
+  "authorization_endpoint": "http://localhost:9229/oauth2/authorize",
+  "token_endpoint": "http://localhost:9229/oauth2/token",
+  "userinfo_endpoint": "http://localhost:9229/oauth2/userInfo",
   "jwks_uri": "http://localhost:9229/us-east-1_localDev01/.well-known/jwks.json",
   ...
 }
@@ -176,7 +176,8 @@ curl http://localhost:9229/us-east-1_localDev01/.well-known/jwks.json
 
 ## What's Next
 
-- **[Configuration](/configuration/)** -- Full reference for `config.json` options, environment variables, and user pool settings.
-- **[OIDC Endpoints](/oidc/)** -- Details on the hosted UI login page, authorization code flow, token exchange, and userinfo.
-- **[SDK Operations](/sdk/)** -- Supported Cognito API operations and how to point the AWS SDK at the local emulator.
-- **[Examples](/examples/)** -- End-to-end examples using popular frameworks and libraries.
+- **[Scope & Limitations](../scope/)** -- Check which Cognito features are supported before diving in.
+- **[Configuration](../configuration/overview/)** -- Full reference for `config.json` options, environment variables, and user pool settings.
+- **[OIDC Endpoints](../oidc/overview/)** -- Details on the hosted UI login page, authorization code flow, token exchange, and userinfo.
+- **[SDK Operations](../sdk/overview/)** -- Supported Cognito API operations and how to point the AWS SDK at the local emulator.
+- **[Examples](../examples/docker/)** -- End-to-end examples using popular frameworks and libraries.

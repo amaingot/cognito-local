@@ -31,6 +31,10 @@ This is the same format used by the real AWS Cognito service, so any AWS SDK cli
 | CreateUserPool | `...CreateUserPool` | Create a new user pool |
 | CreateUserPoolClient | `...CreateUserPoolClient` | Create a new app client |
 
+## Unsupported Operations
+
+cognito-local implements 12 of the 130+ operations in the AWS Cognito API. Calling an unsupported operation returns an `InvalidAction` error. For a complete list of what is and is not covered, see [Scope & Limitations](../scope/).
+
 ## Error Format
 
 All errors follow the Cognito error format:

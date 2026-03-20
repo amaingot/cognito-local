@@ -20,6 +20,7 @@ export default defineConfig({
       plugins: [starlightChangelogs()],
       sidebar: [
         { label: "Getting Started", slug: "getting-started" },
+        { label: "Scope & Limitations", slug: "scope" },
         {
           label: "Configuration",
           items: [

@@ -6,7 +6,7 @@ hero:
   tagline: A drop-in local emulator for Amazon Cognito. Run a fully functional OIDC provider and AWS SDK-compatible API on your machine -- no AWS account required.
   actions:
     - text: Get Started
-      link: /getting-started/
+      link: getting-started/
       icon: right-arrow
     - text: View on GitHub
       link: https://github.com/amaingot/cognito-local
@@ -14,7 +14,7 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from "@astrojs/starlight/components";
+import { Card, CardGrid, Aside } from "@astrojs/starlight/components";
 
 ## Features
 
@@ -62,6 +62,10 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
   </Card>
 </CardGrid>
 
+<Aside type="note" title="Scope">
+cognito-local implements the Cognito features most commonly needed for local development: user registration, password authentication, token issuance, and OIDC flows. Features like MFA, social federation, Lambda triggers, and SRP auth are not included. See [Scope & Limitations](scope/) for the full list.
+</Aside>
+
 ## Quick Start
 
 Pull the image and start the emulator:
@@ -82,21 +86,21 @@ The emulator is now listening on `http://localhost:9229`. Point your AWS SDK cli
 <CardGrid>
   <Card title="Getting Started" icon="open-book">
     Step-by-step setup with Docker, Docker Compose, or local Node.js.
-    [Read the guide](/getting-started/)
+    [Read the guide](getting-started/)
   </Card>
 
   <Card title="Configuration" icon="setting">
     Reference for `config.json` and `users.json` options.
-    [View configuration](/configuration/)
+    [View configuration](configuration/overview/)
   </Card>
 
   <Card title="OIDC Endpoints" icon="approve-check">
     Discovery, authorize, token, userinfo, and logout endpoints.
-    [Explore OIDC](/oidc/)
+    [Explore OIDC](oidc/overview/)
   </Card>
 
   <Card title="SDK Operations" icon="list-format">
     Supported Cognito SDK operations and request/response formats.
-    [Browse SDK docs](/sdk/)
+    [Browse SDK docs](sdk/overview/)
   </Card>
 </CardGrid>

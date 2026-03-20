@@ -27,3 +27,13 @@ cognito-local provides a full OIDC-compliant provider surface that mirrors Amazo
 - Client authentication via Basic auth or POST body
 - RS256 token signing
 - Cognito-compatible JWT claims
+
+## Not Supported
+
+The following OIDC/OAuth2 features are not implemented:
+
+- **Implicit grant** (`response_type=token`) -- Use the authorization code flow with PKCE instead.
+- **Client credentials grant** (`grant_type=client_credentials`) -- No machine-to-machine token issuance.
+- **Social/federated login** -- The login page authenticates against pre-seeded users rather than redirecting to external identity providers.
+
+See [Scope & Limitations](../scope/) for the full list of unsupported features.
