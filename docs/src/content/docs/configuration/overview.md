@@ -29,7 +29,7 @@ Two environment variables directly override values from the config file:
 - `PORT` -- overrides the `port` field in config.json
 - `DATA_DIR` -- overrides the `dataDir` field in config.json
 
-See [Environment Variables](/configuration/environment-variables/) for the full list.
+See [Environment Variables](../environment-variables/) for the full list.
 
 ## Issuer host auto-generation
 

@@ -3,7 +3,7 @@ title: Client Settings
 description: Detailed reference for configuring app clients in the cognito-local clients array.
 ---
 
-The `clients` array in [config.json](/configuration/config-file/) defines the app clients registered with the user pool. Each client object represents an application that can authenticate users through cognito-local.
+The `clients` array in [config.json](../config-file/) defines the app clients registered with the user pool. Each client object represents an application that can authenticate users through cognito-local.
 
 ## Schema
 

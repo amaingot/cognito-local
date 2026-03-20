@@ -15,7 +15,7 @@ The config file is a JSON object that defines the server settings, user pool ide
 | `port` | number | `9229` | Server port |
 | `issuerHost` | string | `"http://localhost:{port}"` | Base URL for the issuer (auto-generated if empty) |
 | `dataDir` | string | `"/temp-data"` | Directory for persistent data (keys, store files) |
-| `clients` | array | `[]` | Array of client configurations (see [Client Settings](/configuration/client-settings/)) |
+| `clients` | array | `[]` | Array of client configurations (see [Client Settings](../client-settings/)) |
 
 All fields are optional. Any field not present in the file falls back to its default value.
 

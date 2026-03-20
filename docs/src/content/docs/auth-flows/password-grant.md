@@ -76,7 +76,7 @@ The password grant is best suited for:
 - **CLI tools** and scripts where redirect-based flows are impractical.
 - **Quick manual testing** with curl or Postman.
 
-For browser-based applications, use the [Authorization Code Flow with PKCE](/auth-flows/authorization-code-pkce/) instead.
+For browser-based applications, use the [Authorization Code Flow with PKCE](../authorization-code-pkce/) instead.
 
 ## Error conditions
 

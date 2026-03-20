@@ -3,7 +3,7 @@ title: Environment Variables
 description: Reference for all environment variables supported by cognito-local.
 ---
 
-cognito-local reads the following environment variables at startup. Environment variables take the highest precedence in the [configuration loading order](/configuration/overview/).
+cognito-local reads the following environment variables at startup. Environment variables take the highest precedence in the [configuration loading order](../overview/).
 
 ## Reference
 
