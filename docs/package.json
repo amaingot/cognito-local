@@ -7,9 +7,9 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "5.9.0",
-    "@astrojs/starlight": "0.36.3",
     "@astrojs/sitemap": "3.3.0",
+    "@astrojs/starlight": "0.36.3",
+    "astro": "^5.18.1",
     "starlight-changelogs": "0.2.3"
   },
   "overrides": {
