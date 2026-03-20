@@ -7,3 +7,6 @@ temp-data/
 .env
 .DS_Store
 coverage/
+docs/node_modules/
+docs/dist/
+docs/.astro/
