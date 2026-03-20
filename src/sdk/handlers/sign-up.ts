@@ -47,7 +47,10 @@ export function signUpHandler(ctx: AppContext) {
       return;
     }
 
-    const username = ctx.userPoolStore.generateUsername();
+    const pool = ctx.userPoolStore.getPool(poolId);
+    const username = pool?.usernameAttributes?.includes("email")
+      ? email.toLowerCase()
+      : ctx.userPoolStore.generateUsername();
     const confirmationCode = ctx.userPoolStore.generateConfirmationCode();
 
     console.log(

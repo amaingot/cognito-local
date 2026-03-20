@@ -2,6 +2,10 @@
 
 Local emulation of Amazon Cognito authentication services. A plug-and-play Docker image for local development and testing.
 
+## Documentation
+
+Full documentation is available at [amaingot.github.io/cognito-local](https://amaingot.github.io/cognito-local/).
+
 ## Features
 
 - **OIDC/Hosted UI** - Full OIDC-compliant provider with login page, token exchange, and userinfo

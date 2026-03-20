@@ -59,7 +59,6 @@ export function createTestApp(): { app: express.Express; ctx: AppContext } {
   const tokenStore = new TokenStore(dataDir);
   testTokenStores.push(tokenStore);
 
-  // Initialize pool and clients from config
   userPoolStore.initFromConfig(config, []);
   clientStore.initFromConfig(config);
 

@@ -48,18 +48,19 @@ describe("Integration: Full Flows", () => {
       }).expect(200);
 
       expect(signUpRes.body.UserConfirmed).toBe(false);
+      // With usernameAttributes: ["email"], UserSub is the email
       const userSub = signUpRes.body.UserSub;
-      expect(userSub).toBeDefined();
+      expect(userSub).toBe("integration@example.com");
 
       // 2. Get the confirmation code from the store and confirm
-      const unconfirmedUser = ctx.userPoolStore.getUser(TEST_POOL_ID, userSub);
+      const unconfirmedUser = ctx.userPoolStore.getUser(TEST_POOL_ID, "integration@example.com");
       expect(unconfirmedUser).toBeDefined();
       expect(unconfirmedUser!.status).toBe("UNCONFIRMED");
       const confirmationCode = unconfirmedUser!.confirmationCode!;
 
       await sdkRequest(app, "ConfirmSignUp", {
         ClientId: TEST_CLIENT_ID,
-        Username: userSub,
+        Username: "integration@example.com",
         ConfirmationCode: confirmationCode,
       }).expect(200);
 
@@ -81,10 +82,10 @@ describe("Integration: Full Flows", () => {
       // 4. Admin get user to verify attributes
       const getUserRes = await sdkRequest(app, "AdminGetUser", {
         UserPoolId: TEST_POOL_ID,
-        Username: userSub,
+        Username: "integration@example.com",
       }).expect(200);
 
-      expect(getUserRes.body.Username).toBe(userSub);
+      expect(getUserRes.body.Username).toBe("integration@example.com");
       expect(getUserRes.body.UserStatus).toBe("CONFIRMED");
       expect(getUserRes.body.Enabled).toBe(true);
 
