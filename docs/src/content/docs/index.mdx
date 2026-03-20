@@ -1,0 +1,102 @@
+---
+title: cognito-local
+description: Local emulator for Amazon Cognito authentication services
+template: splash
+hero:
+  tagline: A drop-in local emulator for Amazon Cognito. Run a fully functional OIDC provider and AWS SDK-compatible API on your machine -- no AWS account required.
+  actions:
+    - text: Get Started
+      link: /getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/amaingot/cognito-local
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+## Features
+
+<CardGrid stagger>
+  <Card title="OIDC / Hosted UI" icon="approve-check">
+    Full OIDC-compliant provider with a server-rendered login page, token
+    exchange, userinfo endpoint, and `.well-known` discovery.
+  </Card>
+
+  <Card title="Cognito SDK API" icon="setting">
+    AWS SDK-compatible endpoint that works with boto3,
+    `@aws-sdk/client-cognito-identity-provider`, and any client that sends
+    `X-Amz-Target` headers.
+  </Card>
+
+  <Card title="Cognito-style Tokens" icon="document">
+    JWTs issued with standard Cognito claims including `cognito:groups`,
+    `cognito:username`, and `token_use` -- verified against a locally generated
+    RSA key pair.
+  </Card>
+
+  <Card title="PKCE Support" icon="random">
+    Authorization code flow with S256 code challenge for public clients such as
+    single-page apps and mobile applications.
+  </Card>
+
+  <Card title="Multiple Auth Flows" icon="list-format">
+    Supports authorization code grant, password grant (USER_PASSWORD_AUTH), and
+    refresh token flows out of the box.
+  </Card>
+
+  <Card title="Persistent Data" icon="seti:folder">
+    RSA keys and user data are written to disk so they survive container
+    restarts. Mount a volume and your tokens stay valid across sessions.
+  </Card>
+
+  <Card title="Pre-seeded Users" icon="seti:json">
+    Define test users, passwords, attributes, and group memberships in a simple
+    JSON file. Users are loaded on startup -- no manual sign-up required.
+  </Card>
+
+  <Card title="Docker-ready" icon="rocket">
+    Pre-built multi-arch image published to `ghcr.io/amaingot/cognito-local`.
+    One command to start, works on x86_64 and ARM64.
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+Pull the image and start the emulator:
+
+```bash
+docker run -d \
+  --name cognito-local \
+  -p 9229:9229 \
+  -v ./config.json:/config/config.json \
+  -v ./users.json:/config/users.json \
+  ghcr.io/amaingot/cognito-local:latest
+```
+
+The emulator is now listening on `http://localhost:9229`. Point your AWS SDK client or OIDC library at this address and authenticate locally.
+
+## Learn More
+
+<CardGrid>
+  <Card title="Getting Started" icon="open-book">
+    Step-by-step setup with Docker, Docker Compose, or local Node.js.
+    [Read the guide](/getting-started/)
+  </Card>
+
+  <Card title="Configuration" icon="setting">
+    Reference for `config.json` and `users.json` options.
+    [View configuration](/configuration/)
+  </Card>
+
+  <Card title="OIDC Endpoints" icon="approve-check">
+    Discovery, authorize, token, userinfo, and logout endpoints.
+    [Explore OIDC](/oidc/)
+  </Card>
+
+  <Card title="SDK Operations" icon="list-format">
+    Supported Cognito SDK operations and request/response formats.
+    [Browse SDK docs](/sdk/)
+  </Card>
+</CardGrid>
