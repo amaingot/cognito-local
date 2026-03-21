@@ -9,17 +9,17 @@ cognito-local implements the Cognito features most commonly needed for local dev
 
 | Category | Details |
 |----------|---------|
-| **SDK Operations** | 12 operations: [SignUp, ConfirmSignUp, ResendConfirmationCode](/sdk/registration/), [InitiateAuth](/sdk/authentication/), [AdminGetUser, AdminUpdateUserAttributes, AdminDeleteUserAttributes, AdminDeleteUser](/sdk/admin-operations/), [ListUsers](/sdk/admin-operations/), [DescribeUserPool, CreateUserPool, CreateUserPoolClient](/sdk/pool-management/) |
-| **OIDC Endpoints** | [Discovery, JWKS](/oidc/discovery/), [Authorization](/oidc/authorization/), [Token](/oidc/token/), [UserInfo](/oidc/userinfo/), [Logout, Revoke](/oidc/logout-revoke/) |
-| **Auth Flows** | [USER_PASSWORD_AUTH](/auth-flows/user-password-auth/), [REFRESH_TOKEN_AUTH](/auth-flows/refresh-token-auth/), [Authorization Code + PKCE](/auth-flows/authorization-code-pkce/), [Password Grant](/auth-flows/password-grant/) |
+| **SDK Operations** | 12 operations: [SignUp, ConfirmSignUp, ResendConfirmationCode](./sdk/registration/), [InitiateAuth](./sdk/authentication/), [AdminGetUser, AdminUpdateUserAttributes, AdminDeleteUserAttributes, AdminDeleteUser](./sdk/admin-operations/), [ListUsers](./sdk/admin-operations/), [DescribeUserPool, CreateUserPool, CreateUserPoolClient](./sdk/pool-management/) |
+| **OIDC Endpoints** | [Discovery, JWKS](./oidc/discovery/), [Authorization](./oidc/authorization/), [Token](./oidc/token/), [UserInfo](./oidc/userinfo/), [Logout, Revoke](./oidc/logout-revoke/) |
+| **Auth Flows** | [USER_PASSWORD_AUTH](./auth-flows/user-password-auth/), [REFRESH_TOKEN_AUTH](./auth-flows/refresh-token-auth/), [Authorization Code + PKCE](./auth-flows/authorization-code-pkce/), [Password Grant](./auth-flows/password-grant/) |
 | **Tokens** | RS256-signed JWTs, Cognito-compatible claims (`cognito:groups`, `cognito:username`, `token_use`), JWKS endpoint |
-| **Data** | Persistent user/pool/client storage (JSON files), [pre-seeded users](/configuration/users-file/) from config |
+| **Data** | Persistent user/pool/client storage (JSON files), [pre-seeded users](./configuration/users-file/) from config |
 
 ## What Is Not Supported
 
 ### Authentication Flows
 
-- **USER_SRP_AUTH** -- Secure Remote Password protocol. cognito-local returns a helpful error suggesting [USER_PASSWORD_AUTH](/auth-flows/user-password-auth/) instead.
+- **USER_SRP_AUTH** -- Secure Remote Password protocol. cognito-local returns a helpful error suggesting [USER_PASSWORD_AUTH](./auth-flows/user-password-auth/) instead.
 - **ADMIN_USER_PASSWORD_AUTH / ADMIN_NO_SRP_AUTH** -- Server-side admin authentication flows.
 - **CUSTOM_AUTH** -- Custom challenge/response flows backed by Lambda triggers.
 
@@ -50,7 +50,7 @@ cognito-local implements the Cognito features most commonly needed for local dev
 
 ### Groups API
 
-Groups can be assigned to users via [`users.json`](/configuration/users-file/) and appear in the `cognito:groups` token claim, but there is no runtime API for managing them.
+Groups can be assigned to users via [`users.json`](./configuration/users-file/) and appear in the `cognito:groups` token claim, but there is no runtime API for managing them.
 
 - **CreateGroup / DeleteGroup / UpdateGroup / GetGroup / ListGroups** -- Group CRUD operations.
 - **AdminAddUserToGroup / AdminRemoveUserFromGroup** -- Group membership management.
@@ -107,7 +107,7 @@ None of the Cognito Lambda trigger points are implemented:
 
 ### OIDC Grant Types
 
-- **Implicit grant** (`response_type=token`) -- Use the [authorization code flow with PKCE](/auth-flows/authorization-code-pkce/) instead.
+- **Implicit grant** (`response_type=token`) -- Use the [authorization code flow with PKCE](./auth-flows/authorization-code-pkce/) instead.
 - **Client credentials grant** (`grant_type=client_credentials`) -- Machine-to-machine token issuance.
 
 ## Workarounds
@@ -139,7 +139,7 @@ Update user passwords directly in `users.json` and restart the emulator, or use 
 
 ### Groups
 
-Define groups statically in [`users.json`](/configuration/users-file/). They appear in the `cognito:groups` token claim. No runtime API is needed if your group assignments are fixed for testing.
+Define groups statically in [`users.json`](./configuration/users-file/). They appear in the `cognito:groups` token claim. No runtime API is needed if your group assignments are fixed for testing.
 
 ### Lambda Triggers
 
@@ -147,14 +147,14 @@ Implement trigger logic as middleware in your application and test it separately
 
 ### Federation / Social Login
 
-Use the built-in OIDC flow with [pre-seeded users](/configuration/users-file/) for local development. Test federation against real Cognito or a separate OIDC provider mock.
+Use the built-in OIDC flow with [pre-seeded users](./configuration/users-file/) for local development. Test federation against real Cognito or a separate OIDC provider mock.
 
 ## Need a Missing Feature?
 
 cognito-local is designed to be easy to extend. The SDK handler pattern is straightforward: a factory function, a router registration, and a test file.
 
-- **[Adding SDK Operations](/contributing/adding-sdk-operations/)** -- Step-by-step guide for implementing new operations.
-- **[Development Setup](/contributing/development/)** -- Get the project running locally.
+- **[Adding SDK Operations](./contributing/adding-sdk-operations/)** -- Step-by-step guide for implementing new operations.
+- **[Development Setup](./contributing/development/)** -- Get the project running locally.
 - **[GitHub Issues](https://github.com/amaingot/cognito-local/issues)** -- Request features or report bugs.
 
 For production-like integration testing that requires unsupported features, consider using real AWS Cognito or [LocalStack](https://localstack.cloud/).
