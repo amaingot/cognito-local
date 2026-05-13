@@ -93,19 +93,13 @@ export function adminCreateUserHandler(ctx: AppContext) {
     ctx.userPoolStore.createUser(user);
 
     if (MessageAction !== "SUPPRESS") {
-      // Only print the temp password when devMode is on. In a shared
-      // environment, logs are not a safe channel for first-login secrets.
-      if (ctx.config.devMode) {
-        ctx.logger.info(
-          { email, tempPassword },
-          "AdminCreateUser: temporary password issued"
-        );
-      } else {
-        ctx.logger.info(
-          { email },
-          "AdminCreateUser: temporary password issued (set COGNITO_LOCAL_DEVMODE=1 to log the value)"
-        );
-      }
+      // The temp password value is never logged. Supply TemporaryPassword in
+      // the request when you need a predictable value for the FORCE_CHANGE_PASSWORD
+      // flow — real Cognito's response also never includes it.
+      const note = TemporaryPassword
+        ? "temporary password from request used"
+        : "temporary password generated (supply TemporaryPassword in your request to control the value)";
+      ctx.logger.info({ email }, `AdminCreateUser: ${note}`);
     }
 
     res.json({
