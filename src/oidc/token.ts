@@ -1,7 +1,9 @@
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { AppContext } from "../index";
 import { generateTokens } from "../tokens/generate";
+import { getKid } from "../crypto";
 
 export function createTokenHandler(ctx: AppContext) {
   return (req: Request, res: Response): void => {
@@ -49,7 +51,47 @@ export function createTokenHandler(ctx: AppContext) {
       return;
     }
 
-    const issuer = `${ctx.config.issuerHost}/${ctx.config.userPoolId}`;
+    const issuer = `${ctx.config.issuerHost}/${client.userPoolId}`;
+
+    // --- Client credentials grant (machine-to-machine, fixes upstream #375) ---
+    if (grant_type === "client_credentials") {
+      if (!client.allowedOAuthFlows.includes("client_credentials")) {
+        res.status(400).json({
+          error: "unauthorized_client",
+          error_description:
+            "Client is not configured for client_credentials grant.",
+        });
+        return;
+      }
+      // Scopes: requested scope minus "openid"/"profile" (which are user scopes)
+      const requested = scope ? scope.split(" ") : client.allowedOAuthScopes;
+      const granted = requested.filter(
+        (s) => !["openid", "profile", "email"].includes(s)
+      );
+
+      const accessClaims = {
+        sub: clientId,
+        token_use: "access",
+        scope: granted.join(" "),
+        client_id: clientId,
+        auth_time: Math.floor(Date.now() / 1000),
+        version: 2,
+      };
+      const accessToken = jwt.sign(accessClaims, ctx.keys.privateKey, {
+        algorithm: "RS256",
+        keyid: getKid(),
+        issuer,
+        expiresIn: client.accessTokenValidity,
+      });
+
+      res.json({
+        access_token: accessToken,
+        token_type: "Bearer",
+        expires_in: client.accessTokenValidity,
+        scope: granted.join(" "),
+      });
+      return;
+    }
 
     // --- Password grant ---
     if (grant_type === "password") {

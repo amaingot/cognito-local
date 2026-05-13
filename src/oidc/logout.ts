@@ -29,9 +29,10 @@ export function createLogoutHandler(ctx: AppContext) {
         allowedLogoutUris = client.logoutUrls;
       }
     } else {
-      // Check all clients in the pool
-      const clients = ctx.clientStore.getClientsByPool(ctx.config.userPoolId);
-      allowedLogoutUris = clients.flatMap((c) => c.logoutUrls);
+      // Check all clients across all pools
+      allowedLogoutUris = ctx.clientStore
+        .listClients()
+        .flatMap((c) => c.logoutUrls);
     }
 
     if (!allowedLogoutUris.includes(redirectUri)) {
@@ -42,7 +43,7 @@ export function createLogoutHandler(ctx: AppContext) {
     const url = new URL(redirectUri);
     if (state) url.searchParams.set("state", state);
 
-    console.log(`Logout: redirecting to ${url.toString()}`);
+    ctx.logger.info({ redirect: url.toString() }, "Logout");
     res.redirect(url.toString());
   };
 }

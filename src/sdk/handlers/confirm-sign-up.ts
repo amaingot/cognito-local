@@ -1,60 +1,72 @@
 import { Request, Response } from "express";
 import { AppContext } from "../../index";
 import {
-  resourceNotFoundError,
-  userNotFoundError,
-  codeMismatchError,
-  invalidParameterError,
-} from "../errors";
+  CodeMismatchError,
+  InvalidParameterError,
+  ResourceNotFoundError,
+  UserNotFoundError,
+} from "../../errors";
+import { triggerEvent } from "../../triggers";
 
 export function confirmSignUpHandler(ctx: AppContext) {
-  return (req: Request, res: Response): void => {
-    const { ClientId, Username, ConfirmationCode } = req.body;
+  return async (req: Request, res: Response): Promise<void> => {
+    const { ClientId, Username, ConfirmationCode, ClientMetadata } = req.body;
 
     if (!ClientId || !Username || !ConfirmationCode) {
-      invalidParameterError(
-        res,
+      throw new InvalidParameterError(
         "ClientId, Username, and ConfirmationCode are required."
       );
-      return;
     }
 
     const client = ctx.clientStore.getClient(ClientId);
     if (!client) {
-      resourceNotFoundError(res, `Client ${ClientId} not found.`);
-      return;
+      throw new ResourceNotFoundError(`Client ${ClientId} not found.`);
     }
 
-    const poolId = client.userPoolId;
-    const pool = ctx.userPoolStore.getPool(poolId);
-    const normalizedUsername =
-      pool?.usernameAttributes?.includes("email") && typeof Username === "string"
-        ? Username.toLowerCase()
-        : Username;
-    let user = ctx.userPoolStore.getUser(poolId, normalizedUsername);
-    if (!user && pool?.usernameAttributes?.includes("email")) {
-      user = ctx.userPoolStore.getUserByEmail(poolId, Username);
-    }
+    const user = ctx.userPoolStore.getUserByUsername(
+      client.userPoolId,
+      Username
+    );
     if (!user) {
-      userNotFoundError(res);
-      return;
+      throw new UserNotFoundError();
     }
 
     if (user.confirmationCode !== ConfirmationCode) {
-      codeMismatchError(res);
-      return;
+      throw new CodeMismatchError();
     }
 
-    ctx.userPoolStore.updateUser({
+    const updated = {
       ...user,
-      status: "CONFIRMED",
+      status: "CONFIRMED" as const,
       confirmationCode: undefined,
       attributes: {
         ...user.attributes,
         email_verified: "true",
       },
-      updatedAt: new Date().toISOString(),
-    });
+      updatedAt: ctx.clock.now().toISOString(),
+    };
+    ctx.userPoolStore.updateUser(updated);
+
+    const pool = ctx.userPoolStore.getPool(client.userPoolId);
+    if (pool && ctx.triggers.enabled(pool, "postConfirmation")) {
+      const event = triggerEvent({
+        triggerSource: "PostConfirmation_ConfirmSignUp",
+        userPoolId: pool.id,
+        username: updated.username,
+        region: pool.region,
+        clientId: ClientId,
+        userAttributes: {
+          ...updated.attributes,
+          "cognito:user_status": updated.status,
+        },
+        request: { clientMetadata: ClientMetadata },
+      });
+      try {
+        await ctx.triggers.fire(pool, "postConfirmation", event);
+      } catch (err) {
+        ctx.logger.warn({ err }, "PostConfirmation trigger failed");
+      }
+    }
 
     res.json({});
   };

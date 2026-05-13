@@ -1,33 +1,36 @@
 import { Request, Response } from "express";
 import { AppContext } from "../../index";
 import {
-  userNotFoundError,
-  invalidParameterError,
-  resourceNotFoundError,
-} from "../errors";
+  InvalidParameterError,
+  ResourceNotFoundError,
+  UserNotFoundError,
+} from "../../errors";
 
+/**
+ * AdminUpdateUserAttributes — throws UserNotFoundException when the user
+ * does not exist (real Cognito returns UserNotFoundException here, not
+ * NotAuthorizedException).
+ */
 export function adminUpdateUserAttributesHandler(ctx: AppContext) {
   return (req: Request, res: Response): void => {
     const { UserPoolId, Username, UserAttributes } = req.body;
 
     if (!UserPoolId || !Username || !UserAttributes) {
-      invalidParameterError(
-        res,
+      throw new InvalidParameterError(
         "UserPoolId, Username, and UserAttributes are required."
       );
-      return;
     }
 
     const pool = ctx.userPoolStore.getPool(UserPoolId);
     if (!pool) {
-      resourceNotFoundError(res, `User pool ${UserPoolId} does not exist.`);
-      return;
+      throw new ResourceNotFoundError(
+        `User pool ${UserPoolId} does not exist.`
+      );
     }
 
-    const user = ctx.userPoolStore.getUser(UserPoolId, Username);
+    const user = ctx.userPoolStore.getUserByUsername(UserPoolId, Username);
     if (!user) {
-      userNotFoundError(res);
-      return;
+      throw new UserNotFoundError(); // #380 — was NotAuthorizedError
     }
 
     const updatedAttributes = { ...user.attributes };
@@ -35,7 +38,6 @@ export function adminUpdateUserAttributesHandler(ctx: AppContext) {
       updatedAttributes[attr.Name] = attr.Value;
     }
 
-    // If email was updated, also update the top-level email field
     const emailAttr = UserAttributes.find(
       (a: { Name: string }) => a.Name === "email"
     );
@@ -44,7 +46,7 @@ export function adminUpdateUserAttributesHandler(ctx: AppContext) {
       ...user,
       attributes: updatedAttributes,
       email: emailAttr ? emailAttr.Value.toLowerCase() : user.email,
-      updatedAt: new Date().toISOString(),
+      updatedAt: ctx.clock.now().toISOString(),
     });
 
     res.json({});

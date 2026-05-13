@@ -21,14 +21,19 @@ export function adminDeleteUserHandler(ctx: AppContext) {
       return;
     }
 
-    const user = ctx.userPoolStore.getUser(UserPoolId, Username);
+    const user = ctx.userPoolStore.getUserByUsername(UserPoolId, Username);
     if (!user) {
       userNotFoundError(res);
       return;
     }
 
-    ctx.userPoolStore.deleteUser(UserPoolId, Username);
-    ctx.tokenStore.revokeUserTokens(Username);
+    const removed = ctx.userPoolStore.clearRefreshTokensForUser(
+      UserPoolId,
+      user.username
+    );
+    for (const t of removed) ctx.tokenStore.revokeRefreshToken(t);
+    ctx.tokenStore.revokeUserTokens(user.username, UserPoolId);
+    ctx.userPoolStore.deleteUser(UserPoolId, user.username);
 
     res.json({});
   };

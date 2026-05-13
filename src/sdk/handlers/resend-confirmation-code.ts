@@ -32,7 +32,7 @@ export function resendConfirmationCodeHandler(ctx: AppContext) {
     }
 
     const poolId = client.userPoolId;
-    const user = ctx.userPoolStore.getUser(poolId, Username);
+    const user = ctx.userPoolStore.getUserByUsername(poolId, Username);
     if (!user) {
       userNotFoundError(res);
       return;
@@ -40,8 +40,9 @@ export function resendConfirmationCodeHandler(ctx: AppContext) {
 
     const confirmationCode = ctx.userPoolStore.generateConfirmationCode();
 
-    console.log(
-      `[ResendConfirmationCode] User ${user.email} new confirmation code: ${confirmationCode}`
+    ctx.logger.info(
+      { email: user.email, confirmationCode },
+      "ResendConfirmationCode"
     );
 
     ctx.userPoolStore.updateUser({

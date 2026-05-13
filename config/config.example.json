@@ -1,21 +1,37 @@
 {
   "region": "us-east-1",
-  "userPoolId": "us-east-1_localDev01",
-  "userPoolName": "cognito-local",
   "port": 9229,
-  "clients": [
+  "pools": [
     {
-      "clientId": "my-app-local",
-      "clientSecret": "local-secret",
-      "clientName": "My App",
-      "callbackUrls": ["http://localhost:3000/callback"],
-      "logoutUrls": ["http://localhost:3000"],
-      "explicitAuthFlows": [
-        "ALLOW_USER_PASSWORD_AUTH",
-        "ALLOW_REFRESH_TOKEN_AUTH"
-      ],
-      "allowedOAuthFlows": ["code"],
-      "allowedOAuthScopes": ["openid", "email", "profile"]
+      "id": "us-east-1_localDev01",
+      "name": "cognito-local",
+      "usernameAttributes": ["email"],
+      "usernameCaseSensitive": false,
+      "autoVerifiedAttributes": ["email"],
+      "mfaConfiguration": "OFF",
+      "passwordPolicy": {
+        "minimumLength": 8,
+        "requireUppercase": true,
+        "requireLowercase": true,
+        "requireNumbers": true,
+        "requireSymbols": false,
+        "temporaryPasswordValidityDays": 7
+      },
+      "clients": [
+        {
+          "clientId": "my-app-local",
+          "clientSecret": "local-secret",
+          "clientName": "My App",
+          "callbackUrls": ["http://localhost:3000/callback"],
+          "logoutUrls": ["http://localhost:3000"],
+          "explicitAuthFlows": [
+            "ALLOW_USER_PASSWORD_AUTH",
+            "ALLOW_REFRESH_TOKEN_AUTH"
+          ],
+          "allowedOAuthFlows": ["code"],
+          "allowedOAuthScopes": ["openid", "email", "profile"]
+        }
+      ]
     }
   ]
 }
