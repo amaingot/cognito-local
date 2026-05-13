@@ -219,7 +219,9 @@ export class UserPoolStore {
     let users = this.users.values().filter((u) => u.userPoolId === poolId);
 
     if (opts.filter) {
-      const match = opts.filter.match(/^(\S+)\s*(\^?=)\s*"(.+)"$/);
+      // Bounded character classes prevent catastrophic backtracking on
+      // adversarial inputs like `!="!="!="...`.
+      const match = opts.filter.match(/^([\w:.-]+)\s*(\^?=)\s*"([^"]+)"$/);
       if (match) {
         const [, attr, op, value] = match;
         users = users.filter((u) => {

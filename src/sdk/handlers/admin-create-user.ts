@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { randomInt } from "node:crypto";
 import { v4 as uuidv4 } from "uuid";
 import { AppContext } from "../../index";
 import {
@@ -17,12 +18,12 @@ function generateTemporaryPassword(): string {
   const symbols = "!@#$%^&*";
   const all = upper + lower + digits + symbols;
   let out = "";
-  out += upper[Math.floor(Math.random() * upper.length)];
-  out += lower[Math.floor(Math.random() * lower.length)];
-  out += digits[Math.floor(Math.random() * digits.length)];
-  out += symbols[Math.floor(Math.random() * symbols.length)];
+  out += upper[randomInt(upper.length)];
+  out += lower[randomInt(lower.length)];
+  out += digits[randomInt(digits.length)];
+  out += symbols[randomInt(symbols.length)];
   for (let i = 0; i < 8; i++) {
-    out += all[Math.floor(Math.random() * all.length)];
+    out += all[randomInt(all.length)];
   }
   return out;
 }
@@ -92,10 +93,19 @@ export function adminCreateUserHandler(ctx: AppContext) {
     ctx.userPoolStore.createUser(user);
 
     if (MessageAction !== "SUPPRESS") {
-      ctx.logger.info(
-        { email, tempPassword },
-        "AdminCreateUser: temporary password issued"
-      );
+      // Only print the temp password when devMode is on. In a shared
+      // environment, logs are not a safe channel for first-login secrets.
+      if (ctx.config.devMode) {
+        ctx.logger.info(
+          { email, tempPassword },
+          "AdminCreateUser: temporary password issued"
+        );
+      } else {
+        ctx.logger.info(
+          { email },
+          "AdminCreateUser: temporary password issued (set COGNITO_LOCAL_DEVMODE=1 to log the value)"
+        );
+      }
     }
 
     res.json({
