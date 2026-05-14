@@ -1,8 +1,11 @@
-import { execFileSync } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import {
   CognitoIdentityProviderClient,
   type CognitoIdentityProviderClientConfig,
 } from "@aws-sdk/client-cognito-identity-provider";
+
+const execFileAsync = promisify(execFile);
 
 /**
  * Pool and client IDs from config/config.example.json — the file mounted into
@@ -74,18 +77,22 @@ export async function waitForHealth(timeoutMs = 30_000): Promise<void> {
  * Restart the docker container, wait until /health is green again, and return
  * a fresh SDK client.
  *
- * The fresh client is important: the AWS SDK keeps an HTTP keep-alive
- * connection pool, and after a container restart the pooled sockets point
- * at a process that no longer exists. The next request reusing such a
- * socket hangs (CI saw 60s timeouts on the first persistence test). We
- * destroy the old client's connection pool and return a new one so callers
- * unambiguously talk over fresh sockets.
+ * We pass `-t 1` so docker SIGKILLs after 1 second if the app hasn't already
+ * exited on SIGTERM. The server traps SIGTERM and exits cleanly in well under
+ * a second, so 1s is comfortable headroom. (Without `-t`, docker uses 10s by
+ * default — usable, but slow enough that tests bump up against the 60s vitest
+ * timeout, and CI saw the first persistence test hang at exactly 60s.)
  *
- * Uses execFileSync (no shell) — the container name is passed as a discrete
- * argv element, so it cannot be interpolated into a shell command.
+ * We destroy the old client and return a fresh one. The AWS SDK keeps an HTTP
+ * keep-alive pool, and after a restart pooled sockets point at a process that
+ * no longer exists — returning a fresh client makes that impossible.
  *
- * Requires `DOCKER_CONTAINER_NAME` to be set; throws otherwise so persistence
- * tests fail loudly rather than silently passing.
+ * Uses execFile (no shell) — the container name is passed as a discrete argv
+ * element so it cannot be interpolated. Async to avoid blocking the Node
+ * event loop while docker waits for the container to shut down.
+ *
+ * Requires `DOCKER_CONTAINER_NAME`; throws otherwise so persistence tests fail
+ * loudly rather than silently passing.
  */
 export async function restartContainer(
   oldClient?: CognitoIdentityProviderClient
@@ -98,7 +105,7 @@ export async function restartContainer(
   if (oldClient) {
     oldClient.destroy();
   }
-  execFileSync("docker", ["restart", CONTAINER_NAME], { stdio: "pipe" });
+  await execFileAsync("docker", ["restart", "-t", "1", CONTAINER_NAME]);
   await waitForHealth(30_000);
   return makeClient();
 }

@@ -132,6 +132,27 @@ function main(): void {
       `Cognito Local listening on ${proto}://0.0.0.0:${config.port}`
     );
   });
+
+  // Graceful shutdown — without this, `docker stop` / `docker restart` waits
+  // the full 10-second grace period before SIGKILL because Node does not
+  // terminate by itself when express has open keep-alive sockets.
+  const shutdown = (signal: string): void => {
+    logger.info({ signal }, "Shutting down");
+    server.close((err) => {
+      if (err) {
+        logger.error({ err: err.message }, "Error during server close");
+        process.exit(1);
+      }
+      process.exit(0);
+    });
+    // Backstop in case server.close hangs on an open socket
+    setTimeout(() => {
+      logger.warn("Force-exiting after shutdown timeout");
+      process.exit(0);
+    }, 5_000).unref();
+  };
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
 // Only run main when executed directly (not imported for testing)
