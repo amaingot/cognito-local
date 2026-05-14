@@ -35,14 +35,8 @@ import {
 // `npm run test:docker` against a non-container endpoint).
 describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
   it("a created user survives a container restart", async () => {
-    const t0 = Date.now();
-    const log = (msg: string): void =>
-      console.log(`[diag +${Date.now() - t0}ms] ${msg}`);
-
-    log("makeClient");
     let c = makeClient();
     const email = `persist-user-${Date.now()}@example.com`;
-    log("send AdminCreateUser");
     await c.send(
       new AdminCreateUserCommand({
         UserPoolId: DOCKER_POOL_ID,
@@ -51,20 +45,15 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
         TemporaryPassword: "TempPass1!",
       })
     );
-    log("AdminCreateUser returned");
 
-    log("calling restartContainer");
     c = await restartContainer(c);
-    log("restartContainer returned");
 
-    log("send AdminGetUser");
     const fetched = await c.send(
       new AdminGetUserCommand({
         UserPoolId: DOCKER_POOL_ID,
         Username: email,
       })
     );
-    log("AdminGetUser returned");
     expect(fetched.Username).toBeTruthy();
     expect(fetched.UserStatus).toBe("FORCE_CHANGE_PASSWORD");
     const emailAttr = fetched.UserAttributes?.find((a) => a.Name === "email");
