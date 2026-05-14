@@ -50,9 +50,12 @@ jobs:
             cognito-local:test
 
       - name: Wait for /health
+        # Use 127.0.0.1 (not localhost) — on Ubuntu runners, Node resolves
+        # localhost to ::1 first and IPv6 to the docker port can hang for
+        # 60s after a `docker restart` reshuffles the network bridge.
         run: |
           for i in $(seq 1 60); do
-            if curl -fs http://localhost:9229/health >/dev/null; then
+            if curl -fs http://127.0.0.1:9229/health >/dev/null; then
               echo "Container is healthy after ${i}s"
               exit 0
             fi
@@ -64,7 +67,7 @@ jobs:
 
       - name: Run docker integration tests
         env:
-          COGNITO_LOCAL_ENDPOINT: http://localhost:9229
+          COGNITO_LOCAL_ENDPOINT: http://127.0.0.1:9229
           DOCKER_CONTAINER_NAME: cognito-local-test
         run: npm run test:docker
 
