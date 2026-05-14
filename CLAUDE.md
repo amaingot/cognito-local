@@ -15,6 +15,7 @@ As of `1.0.0-beta.0` the emulator covers ~110 Cognito SDK operations, all 9 Lamb
 - `npm test` — Run all tests (`vitest run`)
 - `npm run test:watch` — Run tests in watch mode
 - `npm run test:integration` — Run only the AWS SDK v3 integration tests
+- `npm run test:docker` — Run the docker integration suite (smoke + persistence) against a live container. Requires `COGNITO_LOCAL_ENDPOINT` to be set (e.g. `http://localhost:9229`) and `DOCKER_CONTAINER_NAME` for the restart-the-container persistence tests. Excluded from the default `npm test` run. See `.github/workflows/ci.yml` for the CI orchestration.
 - `npx vitest run test/sdk/sign-up.test.ts` — Run a single test file
 - `npm run lint` — ESLint on src/ and test/
 - `npm run format` — Prettier on src/ and test/

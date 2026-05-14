@@ -21,3 +21,57 @@ jobs:
       - run: npm run build
       - run: npm run lint
       - run: npm test
+
+  docker-integration:
+    name: Docker integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build Docker image
+        run: docker build -t cognito-local:test .
+
+      - name: Start container
+        # GITHUB_WORKSPACE is the system-provided absolute path to the checkout —
+        # no user-controlled input is interpolated into this run block.
+        run: |
+          docker run -d \
+            --name cognito-local-test \
+            -p 9229:9229 \
+            -v "$GITHUB_WORKSPACE/config/config.example.json:/config/config.json:ro" \
+            -v "$GITHUB_WORKSPACE/config/users.example.json:/config/users.json:ro" \
+            cognito-local:test
+
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:9229/health >/dev/null; then
+              echo "Container is healthy after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Container failed to become healthy within 60s"
+          docker logs cognito-local-test || true
+          exit 1
+
+      - name: Run docker integration tests
+        env:
+          COGNITO_LOCAL_ENDPOINT: http://localhost:9229
+          DOCKER_CONTAINER_NAME: cognito-local-test
+        run: npm run test:docker
+
+      - name: Container logs (always)
+        if: always()
+        run: docker logs cognito-local-test || true
+
+      - name: Stop and remove container
+        if: always()
+        run: docker rm -f cognito-local-test || true
