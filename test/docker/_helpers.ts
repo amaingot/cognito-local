@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import http from "node:http";
 import { promisify } from "node:util";
 import {
   CognitoIdentityProviderClient,
@@ -49,27 +50,51 @@ export function makeClient(
 }
 
 /**
+ * Probe /health once with a fresh socket, returning quickly on any kind of
+ * failure. Uses node's `http` module directly with `agent: false` so no
+ * connection pool exists — critical for polling across a container restart,
+ * where a pooled keep-alive socket from before the restart would hang
+ * indefinitely on reuse (undici's default fetch dispatcher has bitten us).
+ */
+function probeHealthOnce(timeoutMs: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const url = new URL(`${ENDPOINT}/health`);
+    const req = http.request(
+      {
+        hostname: url.hostname,
+        port: url.port || 80,
+        path: url.pathname,
+        method: "GET",
+        agent: false,
+        timeout: timeoutMs,
+      },
+      (res) => {
+        res.resume(); // drain body so socket can close cleanly
+        resolve(res.statusCode === 200);
+      }
+    );
+    req.on("error", () => resolve(false));
+    req.on("timeout", () => {
+      req.destroy();
+      resolve(false);
+    });
+    req.end();
+  });
+}
+
+/**
  * Poll /health until it returns 200, or throw after `timeoutMs`.
  */
 export async function waitForHealth(timeoutMs = 30_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
-  let lastErr: unknown;
   while (Date.now() < deadline) {
-    try {
-      const res = await fetch(`${ENDPOINT}/health`);
-      if (res.ok) {
-        return;
-      }
-      lastErr = new Error(`/health returned ${res.status}`);
-    } catch (e) {
-      lastErr = e;
+    if (await probeHealthOnce(2_000)) {
+      return;
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 250));
   }
   throw new Error(
-    `Timed out waiting for ${ENDPOINT}/health to return 200 after ${timeoutMs}ms. Last error: ${
-      lastErr instanceof Error ? lastErr.message : String(lastErr)
-    }`
+    `Timed out waiting for ${ENDPOINT}/health to return 200 after ${timeoutMs}ms`
   );
 }
 
@@ -103,7 +128,6 @@ export async function restartContainer(
     );
   }
   const t0 = Date.now();
-  // eslint-disable-next-line no-console
   const log = (msg: string): void =>
     console.log(`[restart +${Date.now() - t0}ms] ${msg}`);
   if (oldClient) {
