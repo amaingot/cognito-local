@@ -35,7 +35,7 @@ import {
 // `npm run test:docker` against a non-container endpoint).
 describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
   it("a created user survives a container restart", async () => {
-    const c = makeClient();
+    let c = makeClient();
     const email = `persist-user-${Date.now()}@example.com`;
     await c.send(
       new AdminCreateUserCommand({
@@ -46,7 +46,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
       })
     );
 
-    await restartContainer();
+    c = await restartContainer(c);
 
     const fetched = await c.send(
       new AdminGetUserCommand({
@@ -61,7 +61,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
   });
 
   it("a group + group membership survive a container restart", async () => {
-    const c = makeClient();
+    let c = makeClient();
     const groupName = `persist-group-${Date.now()}`;
     const email = `persist-grp-user-${Date.now()}@example.com`;
 
@@ -89,7 +89,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
       })
     );
 
-    await restartContainer();
+    c = await restartContainer(c);
 
     const group = await c.send(
       new GetGroupCommand({
@@ -111,7 +111,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
   });
 
   it("a refresh token still works after a container restart", async () => {
-    const c = makeClient();
+    let c = makeClient();
     const email = `persist-refresh-${Date.now()}@example.com`;
     await c.send(
       new AdminCreateUserCommand({
@@ -145,7 +145,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
     );
     const refresh = final.AuthenticationResult!.RefreshToken!;
 
-    await restartContainer();
+    c = await restartContainer(c);
 
     const refreshed = await c.send(
       new InitiateAuthCommand({
@@ -159,7 +159,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
   });
 
   it("user attribute updates survive a container restart", async () => {
-    const c = makeClient();
+    let c = makeClient();
     const email = `persist-attrs-${Date.now()}@example.com`;
     await c.send(
       new AdminCreateUserCommand({
@@ -180,7 +180,7 @@ describe.skipIf(!CONTAINER_NAME)("docker persistence", () => {
       })
     );
 
-    await restartContainer();
+    c = await restartContainer(c);
 
     const fetched = await c.send(
       new AdminGetUserCommand({

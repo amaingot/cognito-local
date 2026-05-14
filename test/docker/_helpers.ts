@@ -71,7 +71,15 @@ export async function waitForHealth(timeoutMs = 30_000): Promise<void> {
 }
 
 /**
- * Restart the docker container and wait until /health is green again.
+ * Restart the docker container, wait until /health is green again, and return
+ * a fresh SDK client.
+ *
+ * The fresh client is important: the AWS SDK keeps an HTTP keep-alive
+ * connection pool, and after a container restart the pooled sockets point
+ * at a process that no longer exists. The next request reusing such a
+ * socket hangs (CI saw 60s timeouts on the first persistence test). We
+ * destroy the old client's connection pool and return a new one so callers
+ * unambiguously talk over fresh sockets.
  *
  * Uses execFileSync (no shell) — the container name is passed as a discrete
  * argv element, so it cannot be interpolated into a shell command.
@@ -79,12 +87,18 @@ export async function waitForHealth(timeoutMs = 30_000): Promise<void> {
  * Requires `DOCKER_CONTAINER_NAME` to be set; throws otherwise so persistence
  * tests fail loudly rather than silently passing.
  */
-export async function restartContainer(): Promise<void> {
+export async function restartContainer(
+  oldClient?: CognitoIdentityProviderClient
+): Promise<CognitoIdentityProviderClient> {
   if (!CONTAINER_NAME) {
     throw new Error(
       "DOCKER_CONTAINER_NAME is required for persistence tests"
     );
   }
+  if (oldClient) {
+    oldClient.destroy();
+  }
   execFileSync("docker", ["restart", CONTAINER_NAME], { stdio: "pipe" });
   await waitForHealth(30_000);
+  return makeClient();
 }
