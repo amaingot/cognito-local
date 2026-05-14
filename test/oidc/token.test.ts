@@ -237,13 +237,55 @@ describe("OIDC Token Endpoint", () => {
         .post("/oauth2/token")
         .type("form")
         .send({
-          grant_type: "client_credentials",
+          grant_type: "made_up_grant",
           client_id: TEST_CLIENT_ID,
           client_secret: TEST_CLIENT_SECRET,
         })
         .expect(400);
 
       expect(res.body.error).toBe("unsupported_grant_type");
+    });
+  });
+
+  describe("client_credentials grant (addresses upstream #375)", () => {
+    it("returns unauthorized_client when not in allowedOAuthFlows", async () => {
+      const res = await request(app)
+        .post("/oauth2/token")
+        .type("form")
+        .send({
+          grant_type: "client_credentials",
+          client_id: TEST_CLIENT_ID,
+          client_secret: TEST_CLIENT_SECRET,
+        })
+        .expect(400);
+
+      expect(res.body.error).toBe("unauthorized_client");
+    });
+
+    it("issues an access token when client is configured for client_credentials", async () => {
+      // Update client to enable client_credentials
+      const c = ctx.clientStore.getClient(TEST_CLIENT_ID)!;
+      ctx.clientStore.updateClient({
+        ...c,
+        allowedOAuthFlows: ["client_credentials"],
+        allowedOAuthScopes: ["https://my-api/read", "openid"],
+      });
+
+      const res = await request(app)
+        .post("/oauth2/token")
+        .type("form")
+        .send({
+          grant_type: "client_credentials",
+          client_id: TEST_CLIENT_ID,
+          client_secret: TEST_CLIENT_SECRET,
+          scope: "https://my-api/read",
+        })
+        .expect(200);
+
+      expect(res.body.access_token).toBeTruthy();
+      expect(res.body.token_type).toBe("Bearer");
+      expect(res.body.refresh_token).toBeUndefined();
+      expect(res.body.scope).toBe("https://my-api/read");
     });
   });
 });

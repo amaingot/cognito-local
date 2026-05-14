@@ -24,7 +24,7 @@ export function adminDeleteUserAttributesHandler(ctx: AppContext) {
       return;
     }
 
-    const user = ctx.userPoolStore.getUser(UserPoolId, Username);
+    const user = ctx.userPoolStore.getUserByUsername(UserPoolId, Username);
     if (!user) {
       userNotFoundError(res);
       return;

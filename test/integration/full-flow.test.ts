@@ -38,7 +38,7 @@ describe("Integration: Full Flows", () => {
       // 1. Sign up a new user
       const signUpRes = await sdkRequest(app, "SignUp", {
         ClientId: TEST_CLIENT_ID,
-        Username: "integration-user",
+        Username: "integration@example.com",
         Password: "IntegrationPass1!",
         UserAttributes: [
           { Name: "email", Value: "integration@example.com" },
@@ -48,12 +48,17 @@ describe("Integration: Full Flows", () => {
       }).expect(200);
 
       expect(signUpRes.body.UserConfirmed).toBe(false);
-      // With usernameAttributes: ["email"], UserSub is the email
+      // Real Cognito returns a UUID as UserSub for email-username pools
       const userSub = signUpRes.body.UserSub;
-      expect(userSub).toBe("integration@example.com");
+      expect(userSub).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+      );
 
       // 2. Get the confirmation code from the store and confirm
-      const unconfirmedUser = ctx.userPoolStore.getUser(TEST_POOL_ID, "integration@example.com");
+      const unconfirmedUser = ctx.userPoolStore.getUserByEmail(
+        TEST_POOL_ID,
+        "integration@example.com"
+      );
       expect(unconfirmedUser).toBeDefined();
       expect(unconfirmedUser!.status).toBe("UNCONFIRMED");
       const confirmationCode = unconfirmedUser!.confirmationCode!;
@@ -85,7 +90,7 @@ describe("Integration: Full Flows", () => {
         Username: "integration@example.com",
       }).expect(200);
 
-      expect(getUserRes.body.Username).toBe("integration@example.com");
+      expect(getUserRes.body.Username).toBe(userSub);
       expect(getUserRes.body.UserStatus).toBe("CONFIRMED");
       expect(getUserRes.body.Enabled).toBe(true);
 

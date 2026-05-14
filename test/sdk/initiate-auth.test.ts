@@ -81,10 +81,12 @@ describe("SDK InitiateAuth", () => {
         },
       }).expect(400);
 
-      expect(res.body.__type).toBe("UserNotFoundException");
+      // Real Cognito returns NotAuthorizedException for unknown users
+      // (not UserNotFoundException — avoids leaking which usernames exist).
+      expect(res.body.__type).toBe("NotAuthorizedException");
     });
 
-    it("returns NotAuthorizedException for unconfirmed user", async () => {
+    it("returns UserNotConfirmedException for unconfirmed user", async () => {
       const res = await sdkRequest(app, "InitiateAuth", {
         AuthFlow: "USER_PASSWORD_AUTH",
         ClientId: TEST_CLIENT_ID,
@@ -94,7 +96,9 @@ describe("SDK InitiateAuth", () => {
         },
       }).expect(400);
 
-      expect(res.body.__type).toBe("NotAuthorizedException");
+      // Real Cognito throws UserNotConfirmedException, not NotAuthorizedException,
+      // when an unconfirmed user attempts USER_PASSWORD_AUTH.
+      expect(res.body.__type).toBe("UserNotConfirmedException");
     });
   });
 

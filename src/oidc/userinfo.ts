@@ -17,7 +17,18 @@ export function createUserInfoHandler(ctx: AppContext) {
       }) as Record<string, unknown>;
 
       const sub = decoded.sub as string;
-      const user = ctx.userPoolStore.getUser(ctx.config.userPoolId, sub);
+      const clientId = decoded.client_id as string | undefined;
+      const client = clientId
+        ? ctx.clientStore.getClient(clientId)
+        : undefined;
+      const poolId = client?.userPoolId ?? ctx.config.pools[0]?.id;
+      if (!poolId) {
+        res.status(404).json({ error: "user_not_found" });
+        return;
+      }
+      const user =
+        ctx.userPoolStore.getUser(poolId, sub) ??
+        ctx.userPoolStore.getUserBySub(poolId, sub);
       if (!user) {
         res.status(404).json({ error: "user_not_found" });
         return;

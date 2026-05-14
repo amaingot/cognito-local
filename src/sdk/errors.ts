@@ -1,66 +1,70 @@
-import { Response } from "express";
+/**
+ * Backwards-compat shims that throw the new error classes from src/errors.ts.
+ * New handlers should `throw new XxxError(...)` directly.
+ */
+import type { Response } from "express";
+import {
+  CodeMismatchError,
+  ExpiredCodeError,
+  InvalidParameterError,
+  InvalidPasswordError,
+  NotAuthorizedError,
+  ResourceNotFoundError,
+  UserNotFoundError,
+  UsernameExistsError,
+} from "../errors";
 
-export function cognitoError(
-  res: Response,
-  statusCode: number,
-  type: string,
-  message: string
-): void {
-  res.status(statusCode).json({ __type: type, message });
-}
+export {
+  CodeMismatchError,
+  ExpiredCodeError,
+  InvalidParameterError,
+  InvalidPasswordError,
+  NotAuthorizedError,
+  ResourceNotFoundError,
+  UserNotFoundError,
+  UsernameExistsError,
+} from "../errors";
 
 export function usernameExistsError(
-  res: Response,
-  message = "User already exists"
-): void {
-  cognitoError(res, 400, "UsernameExistsException", message);
+  _res: Response,
+  message?: string
+): never {
+  throw new UsernameExistsError(message);
 }
 
-export function userNotFoundError(
-  res: Response,
-  message = "User does not exist."
-): void {
-  cognitoError(res, 400, "UserNotFoundException", message);
+export function userNotFoundError(_res: Response, message?: string): never {
+  throw new UserNotFoundError(message);
 }
 
-export function notAuthorizedError(
-  res: Response,
-  message = "Incorrect username or password."
-): void {
-  cognitoError(res, 400, "NotAuthorizedException", message);
+export function notAuthorizedError(_res: Response, message?: string): never {
+  throw new NotAuthorizedError(message);
 }
 
 export function invalidParameterError(
-  res: Response,
-  message = "Invalid parameter."
-): void {
-  cognitoError(res, 400, "InvalidParameterException", message);
+  _res: Response,
+  message?: string
+): never {
+  throw new InvalidParameterError(message);
 }
 
-export function codeMismatchError(
-  res: Response,
-  message = "Invalid verification code provided, please try again."
-): void {
-  cognitoError(res, 400, "CodeMismatchException", message);
+export function codeMismatchError(_res: Response, message?: string): never {
+  throw new CodeMismatchError(message);
 }
 
-export function expiredCodeError(
-  res: Response,
-  message = "Invalid code provided, please request a code again."
-): void {
-  cognitoError(res, 400, "ExpiredCodeException", message);
+export function expiredCodeError(_res: Response, message?: string): never {
+  throw new ExpiredCodeError(message);
 }
 
 export function resourceNotFoundError(
-  res: Response,
-  message = "Resource not found."
-): void {
-  cognitoError(res, 400, "ResourceNotFoundException", message);
+  _res: Response,
+  message?: string
+): never {
+  throw new ResourceNotFoundError(message);
 }
 
 export function invalidPasswordError(
-  res: Response,
-  message = "Password did not conform with policy."
-): void {
-  cognitoError(res, 400, "InvalidPasswordException", message);
+  _res: Response,
+  message?: string
+): never {
+  throw new InvalidPasswordError(message);
 }

@@ -21,6 +21,7 @@ export default defineConfig({
       sidebar: [
         { label: "Getting Started", slug: "getting-started" },
         { label: "Scope & Limitations", slug: "scope" },
+        { label: "Migration: 0.x → 1.0", slug: "migration/v1" },
         {
           label: "Configuration",
           items: [
