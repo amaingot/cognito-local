@@ -102,10 +102,20 @@ export async function restartContainer(
       "DOCKER_CONTAINER_NAME is required for persistence tests"
     );
   }
+  const t0 = Date.now();
+  // eslint-disable-next-line no-console
+  const log = (msg: string): void =>
+    console.log(`[restart +${Date.now() - t0}ms] ${msg}`);
   if (oldClient) {
+    log("destroying old client");
     oldClient.destroy();
   }
+  log("docker restart starting");
   await execFileAsync("docker", ["restart", "-t", "1", CONTAINER_NAME]);
+  log("docker restart returned");
   await waitForHealth(30_000);
-  return makeClient();
+  log("waitForHealth returned");
+  const fresh = makeClient();
+  log("returning fresh client");
+  return fresh;
 }
