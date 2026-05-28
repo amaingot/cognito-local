@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +24,7 @@ jobs:
 
   docker-integration:
     name: Docker integration tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     steps:
       - uses: actions/checkout@v4
 

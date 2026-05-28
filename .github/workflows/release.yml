@@ -22,7 +22,7 @@ env:
 jobs:
   create-release:
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     permissions:
       contents: write
     outputs:
@@ -85,7 +85,7 @@ jobs:
   build-and-push:
     if: always() && !failure() && !cancelled()
     needs: [create-release]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     permissions:
       contents: read
       packages: write
@@ -144,7 +144,7 @@ jobs:
   deploy-docs:
     if: always() && !failure() && !cancelled()
     needs: [create-release]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64]
     permissions:
       contents: read
       pages: write
