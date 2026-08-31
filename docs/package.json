@@ -9,7 +9,7 @@
   "dependencies": {
     "@astrojs/sitemap": "3.3.0",
     "@astrojs/starlight": "0.36.3",
-    "astro": "^5.18.1",
+    "astro": "^6.1.10",
     "starlight-changelogs": "0.2.3"
   },
   "overrides": {
